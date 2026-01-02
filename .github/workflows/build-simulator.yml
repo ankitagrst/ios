@@ -1,0 +1,73 @@
+name: Build iOS Simulator App
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  WORKSPACE: "FeesTrackLibraryManagement.xcworkspace"
+  SCHEME: "FeesTrackLibraryManagement"
+  CONFIGURATION: "Debug"
+  BUILD_DIR: "build"
+
+jobs:
+  build-simulator:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install CocoaPods & xcpretty
+        run: |
+          gem install cocoapods xcpretty --no-document
+          pod --version
+
+      - name: Install pods
+        working-directory: ios
+        run: |
+          pod install
+
+      - name: Build for Simulator
+        working-directory: ios
+        run: |
+          set -e
+          mkdir -p "$BUILD_DIR"
+          xcodebuild -workspace "$WORKSPACE" \
+                     -scheme "$SCHEME" \
+                     -configuration "$CONFIGURATION" \
+                     -sdk iphonesimulator \
+                     -derivedDataPath "$BUILD_DIR" \
+                     clean build | xcpretty
+
+      - name: Package simulator app
+        working-directory: ios
+        run: |
+          set -e
+          APP_PATH=$(find "$BUILD_DIR/Build/Products" -name "*.app" | head -n1)
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app found in $BUILD_DIR/Build/Products"
+            exit 1
+          fi
+          echo "Found app: $APP_PATH"
+          zip -r simulator-app.zip "$APP_PATH"
+          ls -lh simulator-app.zip
+
+      - name: Upload simulator artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-simulator-app
+          path: ios/simulator-app.zip
+
+      - name: Post-build message
+        run: |
+          echo "The simulator .app is uploaded as an artifact (ios-simulator-app)."
+          echo "Download it and upload to Appetize.io (or use a Mac to run it)."
