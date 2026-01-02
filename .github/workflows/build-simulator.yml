@@ -21,6 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Show repo root
+        run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          echo "Listing repository root:"
+          ls -la
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -32,12 +38,10 @@ jobs:
           pod --version
 
       - name: Install pods
-        working-directory: ios
         run: |
           pod install
 
       - name: Build for Simulator
-        working-directory: ios
         run: |
           set -e
           mkdir -p "$BUILD_DIR"
@@ -49,7 +53,6 @@ jobs:
                      clean build | xcpretty
 
       - name: Package simulator app
-        working-directory: ios
         run: |
           set -e
           APP_PATH=$(find "$BUILD_DIR/Build/Products" -name "*.app" | head -n1)
