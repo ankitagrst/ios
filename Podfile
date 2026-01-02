@@ -2,7 +2,7 @@
 platform :ios, '15.5'
 
 source 'https://cdn.cocoapods.org/'
-source 'git@github.com:gonativeio/gonative-specs.git'
+source 'https://github.com/gonativeio/gonative-specs.git'
 
 require_relative './plugins.rb'
 
