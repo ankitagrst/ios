@@ -6,8 +6,8 @@ This repo includes a GitHub Actions workflow that builds an iOS archive and expo
 - Installs Ruby gems and CocoaPods
 - Runs `pod install` in the `ios` workspace
 - (Optional) Imports code signing materials if you provide secrets
-- Archives the app with `xcodebuild` and exports an IPA
-- Uploads artifacts (IPA and xcarchive)
+- Archives the app with `xcodebuild` and exports an IPA (only if signing secrets are provided)
+- Uploads artifacts (IPA if signed, xcarchive always)
 
 ## Required secrets (Repository → Settings → Secrets)
 - `P12_BASE64` — base64-encoded `.p12` certificate containing the private key (for manual signing)
